@@ -58,7 +58,7 @@ Existing mobile anti-virus solutions are **blind to on-chain threats** — they 
 - Desktop / browser-extension protection (mobile-only for v1).
 - iOS support — the MWA protocol is Android-only due to platform restrictions on inter-app communication; iOS is not targeted.
 - Custodial fund recovery or insurance.
-- Replacing the Seed Vault or wallet — Sync protects, it does not custody.
+- Custodying keys — Sync never holds, derives, or exports seed phrases or private keys. Even under Strategy A (Sync-as-Wallet, §5.5), Sync registers as an MWA wallet endpoint purely to screen signing requests and **delegates all key custody and signing to Seed Vault**; it does not replace the Seed Vault's secure-element custody.
 - Non-Solana chains (EVM bridge monitoring is partial; full multi-chain is future scope).
 
 ---
@@ -148,7 +148,7 @@ Sync addresses this through one of the following integration strategies (to be f
 
 | Strategy | How it works | Trade-offs |
 |----------|-------------|------------|
-| **A. Sync-as-Wallet** | Sync registers as an MWA-compliant wallet app. Users select Sync as their wallet, giving it full visibility into all signing requests before they reach Seed Vault. | Full transaction content access; requires Sync to implement the full MWA wallet spec; users must choose Sync as their wallet. |
+| **A. Sync-as-Wallet** | Sync registers as an MWA-compliant wallet **endpoint** so it can see signing requests before approval, but **does not custody keys** — it delegates all key storage and signing to Seed Vault (see Non-Goals, §3). Users select Sync as their wallet, giving it full visibility into all signing requests. | Full transaction content access; requires Sync to implement the MWA wallet endpoint spec and proxy signing to Seed Vault; users must choose Sync as their wallet. |
 | **B. Accessibility Service** | Sync uses Android's `AccessibilityService` to read transaction content from the wallet approval UI before the user confirms. | No MWA implementation needed; works with any wallet; limited to UI text parsing; Android permission friction. |
 | **C. Wallet SDK Integration** | Sync integrates as a middleware layer within a partner wallet (e.g. Seed Vault Wallet fork or Phantom integration). | Deepest integration; requires wallet partnership; not standalone. |
 | **D. Notification Listener** | Sync monitors MWA session notifications via `NotificationListenerService` to detect signing events and trigger parallel analysis. | Lightweight; limited to metadata, not full transaction content. |
@@ -236,6 +236,9 @@ Sync addresses this through one of the following integration strategies (to be f
 | `yara/` | YARA rules, rule manager, binary scanner |
 | `integrated-scanner` | Unified behavioral + YARA + LLM pipeline |
 | `agent-tools` | DeepAgentsJS tool definitions for LLM agent |
+| `api` | Public scanning API + x402 micropayment gating (§6.5) |
+| `interception/` | MWA transaction interception — wallet-endpoint / accessibility strategies (§5.5); Phase 4 |
+| `threat-db/` | On-device threat database (SQLite cache, encrypted at rest; §8); Phase 4 |
 
 ---
 
@@ -268,7 +271,12 @@ Sync addresses this through one of the following integration strategies (to be f
 | **Medium** | 40–59 | Caution; review permissions |
 | **Low** | 0–39 | Monitor; informational |
 
-Combined score weights behavioral (60%) and YARA (40%) analysis; a critical YARA match escalates overall severity regardless of behavioral score.
+The combined score is a weighted blend of two **layer components** — **behavioral (60%)** and **YARA (40%)** — normalized over whichever components produced findings (so a strong single-layer result isn't diluted by an absent layer):
+
+- **Behavioral component** — behavioral-scanner findings, reinforced by signature matches and any LLM-classifier findings (the LLM contributes contextual risk into this component when escalation is active; see §5.4).
+- **YARA component** — YARA-rule findings, also reinforced by signature matches.
+
+The **signature matcher (§5.2)** is not a third weighted term: a signature hit reinforces whichever component it corroborates (behavioral and/or YARA), taking the stronger of the two. **Escalation override:** a critical YARA match — or a high-confidence critical signature match — forces overall severity to **Critical** regardless of the weighted score.
 
 ---
 
@@ -297,7 +305,7 @@ Combined score weights behavioral (60%) and YARA (40%) analysis; a critical YARA
 - DeepAgentsJS agent, on-chain context via Helius, Neo4j threat graph, intelligence reports.
 
 ### Phase 4 — Mobile App
-- Android app, Solana Mobile Stack integration, Mobile Wallet Adapter interception, security dashboard.
+- Android app, Solana Mobile Stack integration, Mobile Wallet Adapter interception (via the strategy selected in §5.5), on-device threat DB (§8), security dashboard.
 
 ### Phase 5 — API & Ecosystem
 - Public scanning API, PayAI x402 monetization, custom-rule marketplace, threat-intel feed.
