@@ -52,3 +52,22 @@ export type { LlmClassifierOptions } from "./llm/classifier.js";
 export { createOpenRouterModel, DEFAULT_OPENROUTER_MODEL } from "./llm/openrouter.js";
 export type { OpenRouterOptions } from "./llm/openrouter.js";
 export { createLangchainScanTools } from "./llm/scanTools.js";
+
+// Public scanning API + x402 micropayments — Phase 5 (PRD §6.5, FR-14/16)
+export { SyncApiServer } from "./api/server.js";
+export type { SyncApiServerOptions } from "./api/server.js";
+export {
+  PaymentGate,
+  HmacPaymentVerifier,
+  encodePaymentHeader,
+  X402_VERSION,
+  USDC_MINT,
+} from "./api/x402.js";
+export type {
+  PaymentRequirements,
+  PaymentPayload,
+  PaymentVerifier,
+  VerificationResult,
+  PaymentGateOptions,
+  GateResult,
+} from "./api/x402.js";

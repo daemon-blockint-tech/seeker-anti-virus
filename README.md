@@ -102,6 +102,45 @@ scanner.ruleManager.add({
 console.log(scanner.ruleManager.exportAll()); // YARA-source export
 ```
 
+### Public scanning API + x402 micropayments — Phase 5 (FR-14/16)
+
+A dependency-free HTTP service exposes the engine. Scan routes can be gated
+behind [x402](https://x402.org) USDC micropayments (PRD §8 PayAI x402).
+
+```ts
+import { SyncApiServer, PaymentGate, HmacPaymentVerifier } from "@daemon-blockint/sync-core";
+
+const gate = new PaymentGate({
+  payTo: "<your-USDC-wallet>",
+  verifier: new HmacPaymentVerifier(process.env.X402_SECRET!), // swap for a PayAI facilitator in prod
+  priceAtomic: "10000", // $0.01 USDC (6 decimals)
+});
+
+await new SyncApiServer({ gate }).listen(8787);
+```
+
+| Route | Method | Gated | Purpose |
+|-------|--------|-------|---------|
+| `/health` | GET | no | liveness |
+| `/v1/rules` | GET | no | list active YARA rules |
+| `/v1/scan/app` | POST | yes | scan an app |
+| `/v1/scan/contract` | POST | yes | audit a contract/token |
+| `/v1/scan/url` | POST | yes | screen a dApp URL |
+| `/v1/scan/text` | POST | yes | scan a text/code blob |
+
+Unpaid requests to gated routes get an x402 `402` challenge:
+
+```jsonc
+// 402 Payment Required
+{ "x402Version": 1, "error": "payment_required",
+  "accepts": [{ "scheme": "exact", "network": "solana", "asset": "<USDC mint>",
+                "maxAmountRequired": "10000", "payTo": "...", "resource": "/v1/scan/url" }] }
+```
+
+The client retries with a base64 `X-PAYMENT` header; verification is pluggable
+via the `PaymentVerifier` interface. Run `npm run serve` (add `X402_SECRET` to
+enable gating).
+
 ### LLM agent tools (PRD §9)
 
 ```ts
@@ -119,7 +158,9 @@ const tools = createAgentTools(scanner); // scan_app, scan_contract, scan_url, a
 | `analyzer/` | `RiskScorer`, `ReportGenerator` | 0–100 scoring + plain-language reports (PRD §11) |
 | `monitor/` | `Monitor` | real-time sessions + alerts (FR-1/FR-3) |
 | `integrated-scanner` | `IntegratedScanner` | unified pipeline (PRD §9) |
+| `llm/` | `makeLlmClassifier` | LangGraph + OpenRouter classifier (PRD 5.4) |
 | `agent-tools` | `createAgentTools` | DeepAgentsJS tool definitions (PRD §9) |
+| `api/` | `SyncApiServer`, `PaymentGate` | public scanning API + x402 gating (FR-14/16) |
 
 ## Risk scoring
 
@@ -134,8 +175,10 @@ Combined score weights **behavioral (60%)** and **YARA (40%)**, normalized over 
 
 ## Status
 
-Phases 1 & 2 (core engine + YARA) and **Phase 3 (LLM classification)** implemented.
-Mobile app and public API (Phases 4–5) are future scope.
+Phases 1 & 2 (core engine + YARA), **Phase 3 (LLM classification)** and
+**Phase 5 (public scanning API + x402 micropayments)** implemented. The Phase 4
+mobile app (Android + Solana Mobile Stack) consumes this engine and is tracked
+separately.
 
 ---
 
