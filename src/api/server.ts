@@ -64,10 +64,17 @@ export class SyncApiServer {
   };
 
   listen(port = 0): Promise<{ port: number }> {
-    this.server = createServer(this.handler);
-    return new Promise((resolve) => {
-      this.server!.listen(port, () => {
-        const addr = this.server!.address();
+    const server = createServer(this.handler);
+    this.server = server;
+    // Bound slow-loris exposure: cap how long a request may take to arrive.
+    server.requestTimeout = 30_000;
+    server.headersTimeout = 15_000;
+    return new Promise((resolve, reject) => {
+      const onError = (err: Error) => reject(err);
+      server.once("error", onError);
+      server.listen(port, () => {
+        server.removeListener("error", onError);
+        const addr = server.address();
         resolve({ port: typeof addr === "object" && addr ? addr.port : port });
       });
     });
@@ -133,7 +140,17 @@ export class SyncApiServer {
       return this.json(res, 400, { error: "invalid_body", message: (err as Error).message });
     }
 
-    const id = body.id ?? body.address ?? body.url ?? body.package;
+    const isTextScan = path === "/v1/scan/text";
+    // The text endpoint scans a raw blob, so `text` alone is a valid target.
+    if (isTextScan && !body.text) {
+      return this.json(res, 400, {
+        error: "missing_target",
+        message: "Provide a non-empty 'text' field to scan.",
+      });
+    }
+
+    const id =
+      body.id ?? body.address ?? body.url ?? body.package ?? (isTextScan ? "text-blob" : undefined);
     if (!id) {
       return this.json(res, 400, {
         error: "missing_target",

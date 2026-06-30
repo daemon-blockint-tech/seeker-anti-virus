@@ -20,6 +20,8 @@ export interface IntegratedScannerOptions {
   llm?: LlmClassifier;
   /** Min combined score before escalating to the LLM (default 60). */
   llmEscalationThreshold?: number;
+  /** Called when the opt-in LLM step throws. Defaults to `console.warn`. */
+  onLlmError?: (error: unknown, target: ScanTarget) => void;
 }
 
 export interface ScanResult extends RiskResult {
@@ -41,12 +43,17 @@ export class IntegratedScanner {
   private readonly reporter = new ReportGenerator();
   private readonly llm?: LlmClassifier;
   private readonly llmThreshold: number;
+  private readonly onLlmError: (error: unknown, target: ScanTarget) => void;
 
   constructor(options: IntegratedScannerOptions = {}) {
     this.signatures = new SignatureMatcher(options.signatures);
     this.rules = new RuleManager(options.yaraRules);
     this.llm = options.llm;
     this.llmThreshold = options.llmEscalationThreshold ?? 60;
+    this.onLlmError =
+      options.onLlmError ??
+      ((err, target) =>
+        console.warn(`[sync] LLM classification failed for ${target.id}:`, err));
   }
 
   /** Access the rule manager for custom-rule management (FR-15). */
@@ -72,8 +79,10 @@ export class IntegratedScanner {
       if (interim.score >= this.llmThreshold) {
         try {
           findings.push(...(await this.llm(target, findings)));
-        } catch {
-          // LLM is best-effort; never let it break local detection (PRD §7).
+        } catch (err) {
+          // LLM is best-effort; never let it break local detection (PRD §7),
+          // but surface the failure so operators aren't blind to it.
+          this.onLlmError(err, target);
         }
       }
     }
