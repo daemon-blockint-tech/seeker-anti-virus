@@ -45,3 +45,10 @@ export type {
 // LLM agent tools (PRD §9)
 export { createAgentTools } from "./agent-tools/tools.js";
 export type { AgentTool } from "./agent-tools/tools.js";
+
+// LLM threat classifier — Phase 3 (PRD 5.4)
+export { makeLlmClassifier } from "./llm/classifier.js";
+export type { LlmClassifierOptions } from "./llm/classifier.js";
+export { createOpenRouterModel, DEFAULT_OPENROUTER_MODEL } from "./llm/openrouter.js";
+export type { OpenRouterOptions } from "./llm/openrouter.js";
+export { createLangchainScanTools } from "./llm/scanTools.js";

@@ -21,7 +21,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "demo": "tsx examples/demo.ts"
+    "demo": "tsx examples/demo.ts",
+    "demo:llm": "tsx examples/llm-demo.ts"
   },
   "keywords": [
     "solana",
@@ -36,8 +37,15 @@
     "node": ">=20"
   },
   "devDependencies": {
+    "@types/node": "^26.0.1",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"
+  },
+  "dependencies": {
+    "@langchain/core": "^1.2.1",
+    "@langchain/langgraph": "^1.4.7",
+    "@langchain/openai": "^1.5.3",
+    "zod": "^4.4.3"
   }
 }

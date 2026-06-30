@@ -61,17 +61,31 @@ monitor.start({ id: "com.some.app", kind: "app", events: [] });
 monitor.ingest("com.some.app", { type: "network", timestamp: Date.now(), host: "1.2.3.4" });
 ```
 
-### Opt-in LLM escalation (PRD 5.4)
+### LLM threat classifier — Phase 3 (PRD 5.4)
+
+A LangGraph ReAct agent (model + Sync scan tools) escalates ambiguous cases. It
+runs on **OpenRouter** (any model slug via `OPENROUTER_MODEL`) and returns
+structured `Finding[]` through a mandatory `submit_classification` tool call.
 
 ```ts
+import { IntegratedScanner, makeLlmClassifier } from "@daemon-blockint/sync-core";
+
 const scanner = new IntegratedScanner({
-  llmEscalationThreshold: 60,
-  llm: async (target, priorFindings) => {
-    // call DeepAgentsJS / OpenRouter, return Finding[]
-    return [];
-  },
+  llm: makeLlmClassifier(),    // OpenRouter-backed agent (needs OPENROUTER_API_KEY)
+  llmEscalationThreshold: 60,  // only escalate above this interim score
 });
-await scanner.scan(target); // LLM only invoked above the threshold
+
+await scanner.scan(target);    // LLM invoked only above the threshold; failures degrade gracefully
+```
+
+Configure via `.env` (see `.env.example`): `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`,
+and optional `LANGSMITH_*` for tracing. Run `npm run demo:llm` for a live example.
+
+The `llm` hook accepts any `(target, priorFindings) => Promise<Finding[]>`, so you
+can plug in a custom model or pass an injected `BaseChatModel`:
+
+```ts
+makeLlmClassifier({ model: myChatModel, llmEscalationThreshold: 50 });
 ```
 
 ### Custom YARA rules (FR-15)
@@ -120,7 +134,8 @@ Combined score weights **behavioral (60%)** and **YARA (40%)**, normalized over 
 
 ## Status
 
-Phases 1 & 2 implemented. LLM classification (Phase 3) is wired via the opt-in `llm` hook; mobile app and public API (Phases 4–5) are future scope.
+Phases 1 & 2 (core engine + YARA) and **Phase 3 (LLM classification)** implemented.
+Mobile app and public API (Phases 4–5) are future scope.
 
 ---
 
