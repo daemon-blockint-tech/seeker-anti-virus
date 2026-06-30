@@ -102,6 +102,33 @@ scanner.ruleManager.add({
 console.log(scanner.ruleManager.exportAll()); // YARA-source export
 ```
 
+### MWA transaction interception — Phase 4 (§5.5, FR-2)
+
+Sync registers as an MWA **wallet endpoint** (Strategy A), screens every signing
+request through the engine, and delegates actual signing to Seed Vault — it
+**never custodies keys**. Critical findings block; high findings require explicit
+user confirmation.
+
+```ts
+import { SyncWalletEndpoint, ScreeningPipeline } from "@daemon-blockint/sync-core";
+
+const endpoint = new SyncWalletEndpoint(seedVault, {           // seedVault: SeedVaultSigner
+  pipeline: new ScreeningPipeline({ warnAt: "high", blockAt: "critical" }),
+  onWarn: (r) => confirmWithUser(r),                           // return true to proceed
+});
+
+await endpoint.authorize({ identityName: "Some dApp" });
+const { outcomes } = await endpoint.signTransactions([txBytes]); // screened, then signed
+// outcomes[i].signed present if approved; .blockedReason if blocked/declined
+```
+
+The pipeline decodes the transaction (`decodeTransaction`), maps it to a
+`ScanTarget` (program ids, transfer amounts → behavioral events), scans it, and
+returns an `allow` / `warn` / `block` decision. Run `npm run demo:intercept`.
+
+> Thresholds are configurable: set `warnAt: "medium"` to surface anomalous
+> large transfers (which score as low-confidence on their own today).
+
 ### Public scanning API + x402 micropayments — Phase 5 (FR-14/16)
 
 A dependency-free HTTP service exposes the engine. Scan routes can be gated
@@ -161,6 +188,7 @@ const tools = createAgentTools(scanner); // scan_app, scan_contract, scan_url, a
 | `llm/` | `makeLlmClassifier` | LangGraph + OpenRouter classifier (PRD 5.4) |
 | `agent-tools` | `createAgentTools` | DeepAgentsJS tool definitions (PRD §9) |
 | `api/` | `SyncApiServer`, `PaymentGate` | public scanning API + x402 gating (FR-14/16) |
+| `interception/` | `SyncWalletEndpoint`, `ScreeningPipeline` | MWA tx interception + screening (§5.5, FR-2) |
 
 ## Risk scoring
 
@@ -175,10 +203,11 @@ Combined score weights **behavioral (60%)** and **YARA (40%)**, normalized over 
 
 ## Status
 
-Phases 1 & 2 (core engine + YARA), **Phase 3 (LLM classification)** and
-**Phase 5 (public scanning API + x402 micropayments)** implemented. The Phase 4
-mobile app (Android + Solana Mobile Stack) consumes this engine and is tracked
-separately.
+Phases 1 & 2 (core engine + YARA), **Phase 3 (LLM classification)**,
+**Phase 5 (public scanning API + x402)**, and the **Phase 4 interception core**
+(MWA wallet-endpoint screening + transaction decoding) are implemented. The
+remaining Phase 4 work is the native Android + Solana Mobile Stack app shell that
+hosts this engine.
 
 ---
 

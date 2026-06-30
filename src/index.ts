@@ -71,3 +71,28 @@ export type {
   PaymentGateOptions,
   GateResult,
 } from "./api/x402.js";
+
+// MWA transaction interception — Phase 4 (PRD §5.5, FR-2)
+export {
+  ScreeningPipeline,
+  SyncWalletEndpoint,
+  decodeMessage,
+  decodeTransaction,
+  transactionToScanTarget,
+  bytesToBase58,
+  KNOWN_PROGRAMS,
+} from "./interception/index.js";
+export type {
+  DecodedTransaction,
+  DecodedInstruction,
+  ScreeningPipelineOptions,
+  ScreeningResult,
+  ScreeningDecision,
+  SeedVaultSigner,
+  AuthorizeRequest,
+  AuthorizeResult,
+  SignedOutcome,
+  SignTransactionsResult,
+  WarnConfirmHandler,
+  SyncWalletEndpointOptions,
+} from "./interception/index.js";
