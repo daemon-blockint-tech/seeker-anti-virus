@@ -1,0 +1,47 @@
+/**
+ * Sync — Solana Mobile Seeker Anti-Virus detection engine.
+ *
+ * Public entry point re-exporting the core modules described in the PRD
+ * (sections 5 & 9): scanner, signatures, analyzer, monitor, yara,
+ * integrated-scanner and agent-tools.
+ */
+
+export * from "./types.js";
+
+// Behavioral scanner (PRD 5.1)
+export { BehavioralScanner } from "./scanner/behavioralScanner.js";
+export type { BehavioralScannerOptions } from "./scanner/behavioralScanner.js";
+
+// Signature matching (PRD 5.2)
+export { SignatureMatcher } from "./signatures/signatureMatcher.js";
+export { DEFAULT_SIGNATURES } from "./signatures/signatureDatabase.js";
+export type { ThreatSignature } from "./signatures/signatureDatabase.js";
+
+// Analyzer (PRD §9)
+export { RiskScorer } from "./analyzer/riskScorer.js";
+export type { RiskResult } from "./analyzer/riskScorer.js";
+export { ReportGenerator } from "./analyzer/reportGenerator.js";
+export type { ThreatReport } from "./analyzer/reportGenerator.js";
+
+// YARA (PRD 5.3)
+export { YaraScanner } from "./yara/yaraScanner.js";
+export type { YaraMatch } from "./yara/yaraScanner.js";
+export { RuleManager } from "./yara/ruleManager.js";
+export { SOLANA_YARA_RULES } from "./yara/rules.js";
+export type { YaraRule, YaraString } from "./yara/rules.js";
+
+// Real-time monitor (PRD §9)
+export { Monitor } from "./monitor/monitor.js";
+export type { ThreatAlert, AlertHandler, MonitorOptions } from "./monitor/monitor.js";
+
+// Integrated pipeline (PRD §9)
+export { IntegratedScanner } from "./integrated-scanner/integratedScanner.js";
+export type {
+  IntegratedScannerOptions,
+  ScanResult,
+  LlmClassifier,
+} from "./integrated-scanner/integratedScanner.js";
+
+// LLM agent tools (PRD §9)
+export { createAgentTools } from "./agent-tools/tools.js";
+export type { AgentTool } from "./agent-tools/tools.js";
