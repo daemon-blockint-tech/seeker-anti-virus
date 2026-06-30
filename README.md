@@ -102,6 +102,31 @@ scanner.ruleManager.add({
 console.log(scanner.ruleManager.exportAll()); // YARA-source export
 ```
 
+### On-device threat DB + signed OTA updates (§8, FR-8/FR-9)
+
+A local threat-intelligence cache over a pluggable backend (in-memory or
+`node:sqlite` with **AES-256-GCM encryption at rest**), updated via **Ed25519-signed
+OTA bundles** — unsigned, tampered, or rolled-back bundles are rejected
+(PRD §7 "signed rule updates only").
+
+```ts
+import {
+  ThreatStore, SqliteBackend, OtaUpdater, BundleVerifier,
+} from "@daemon-blockint/sync-core";
+
+const store = new ThreatStore(new SqliteBackend({ encryptionKey })); // 32-byte key
+const updater = new OtaUpdater(new BundleVerifier({ "sync-2026": publicKeyPem }));
+
+updater.apply(signedBundle, { store, signatureMatcher, ruleManager });
+// verifies signature -> enforces monotonic version -> merges threats/signatures/rules
+
+store.scan(target); // Finding[] for any stored indicator matching the target
+```
+
+Bundles carry threat records (address / domain / program / hash indicators),
+signatures, and YARA rules. Versioning is monotonic (anti-rollback). Run
+`npm run demo:threatdb`.
+
 ### MWA transaction interception — Phase 4 (§5.5, FR-2)
 
 Sync registers as an MWA **wallet endpoint** (Strategy A), screens every signing
@@ -190,6 +215,7 @@ const tools = createAgentTools(scanner); // scan_app, scan_contract, scan_url, a
 | `agent-tools` | `createAgentTools` | DeepAgentsJS tool definitions (PRD §9) |
 | `api/` | `SyncApiServer`, `PaymentGate` | public scanning API + x402 gating (FR-14/16) |
 | `interception/` | `SyncWalletEndpoint`, `ScreeningPipeline` | MWA tx interception + screening (§5.5, FR-2) |
+| `threat-db/` | `ThreatStore`, `OtaUpdater` | on-device SQLite threat cache + signed OTA updates (§8, FR-8/9) |
 
 ## Risk scoring
 

@@ -24,7 +24,8 @@
     "demo": "tsx examples/demo.ts",
     "demo:llm": "tsx examples/llm-demo.ts",
     "serve": "tsx examples/serve.ts",
-    "demo:intercept": "tsx examples/intercept-demo.ts"
+    "demo:intercept": "tsx examples/intercept-demo.ts",
+    "demo:threatdb": "tsx examples/threatdb-demo.ts"
   },
   "keywords": [
     "solana",
