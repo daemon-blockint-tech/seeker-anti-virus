@@ -23,7 +23,8 @@
     "test:watch": "vitest",
     "demo": "tsx examples/demo.ts",
     "demo:llm": "tsx examples/llm-demo.ts",
-    "serve": "tsx examples/serve.ts"
+    "serve": "tsx examples/serve.ts",
+    "demo:intercept": "tsx examples/intercept-demo.ts"
   },
   "keywords": [
     "solana",
