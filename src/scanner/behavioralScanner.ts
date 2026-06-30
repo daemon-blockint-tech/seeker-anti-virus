@@ -29,6 +29,8 @@ const SUSPICIOUS_HOST_PATTERNS = [
 
 /** Anomalous transfer threshold (~5 SOL) used as a heuristic trip-wire. */
 const LARGE_TRANSFER_LAMPORTS = 5 * 1_000_000_000;
+/** Above this (~50 SOL) a transfer is treated as a near-certain anomaly. */
+const VERY_LARGE_TRANSFER_LAMPORTS = 50 * 1_000_000_000;
 
 export interface BehavioralScannerOptions {
   /** Override the large-transfer threshold (in lamports). */
@@ -89,6 +91,7 @@ export class BehavioralScanner {
     const suspiciousHosts = new Set<string>();
     let unsignedLoads = 0;
     const largeTransfers: string[] = [];
+    let maxTransferLamports = 0;
     let clipboardReads = 0;
 
     for (const ev of events) {
@@ -103,6 +106,7 @@ export class BehavioralScanner {
           break;
         case "crypto_transaction":
           if ((ev.amountLamports ?? 0) >= this.largeTransfer) {
+            maxTransferLamports = Math.max(maxTransferLamports, ev.amountLamports!);
             largeTransfers.push(
               `${(ev.amountLamports! / 1e9).toFixed(2)} SOL → ${
                 ev.targetAddress ?? "unknown"
@@ -145,15 +149,19 @@ export class BehavioralScanner {
     }
 
     if (largeTransfers.length > 0) {
+      // A transfer past the anomaly trip-wire should warn the user to confirm
+      // (PRD FR-2). Confidence scales with magnitude so very large outflows land
+      // firmly in the "high" band rather than reading as low-risk.
+      const veryLarge = maxTransferLamports >= VERY_LARGE_TRANSFER_LAMPORTS;
       findings.push({
         source: "behavioral",
         ruleId: "BEH_ANOMALOUS_TRANSFER",
         title: "Large / anomalous transfer detected",
         description:
-          "App initiated transfers above the anomaly threshold. Verify the recipient before approving.",
+          "Transfer exceeds the anomaly threshold. Verify the recipient and amount before approving.",
         category: "drainer",
-        severity: "medium",
-        confidence: 0.55,
+        severity: "high",
+        confidence: veryLarge ? 0.95 : 0.87,
         evidence: largeTransfers,
       });
     }
