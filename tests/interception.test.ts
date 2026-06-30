@@ -101,11 +101,13 @@ function scannerFlagging(severity: "high" | "critical"): IntegratedScanner {
 }
 
 describe("ScreeningPipeline", () => {
-  it("flags a large transfer as a behavioral anomaly", async () => {
+  it("warns on a lone large transfer (behavioral anomaly)", async () => {
     const pipeline = new ScreeningPipeline();
     const result = await pipeline.screen(asTransaction(buildTransferMessage(9_000_000_000n)));
     expect(result.decoded.instructions).toHaveLength(1);
     expect(result.report.findings.some((f) => f.ruleId === "BEH_ANOMALOUS_TRANSFER")).toBe(true);
+    expect(result.severity).toBe("high");
+    expect(result.decision).toBe("warn");
   });
 
   it("blocks a critical-severity transaction", async () => {

@@ -126,8 +126,9 @@ The pipeline decodes the transaction (`decodeTransaction`), maps it to a
 `ScanTarget` (program ids, transfer amounts → behavioral events), scans it, and
 returns an `allow` / `warn` / `block` decision. Run `npm run demo:intercept`.
 
-> Thresholds are configurable: set `warnAt: "medium"` to surface anomalous
-> large transfers (which score as low-confidence on their own today).
+> A lone large/anomalous transfer screens as **high → warn** (the user must
+> confirm); very large outflows raise confidence further. Thresholds
+> (`warnAt` / `blockAt`) remain configurable.
 
 ### Public scanning API + x402 micropayments — Phase 5 (FR-14/16)
 

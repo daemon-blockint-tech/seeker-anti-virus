@@ -40,6 +40,14 @@ describe("BehavioralScanner", () => {
     };
     const f = scanner.scan(target).find((x) => x.ruleId === "BEH_ANOMALOUS_TRANSFER");
     expect(f).toBeDefined();
+    expect(f!.severity).toBe("high");
+  });
+
+  it("scales confidence up for very large transfers", () => {
+    const big = scanner
+      .scan({ id: "a", kind: "app", events: [{ type: "crypto_transaction", timestamp: 1, amountLamports: 60e9 }] })
+      .find((x) => x.ruleId === "BEH_ANOMALOUS_TRANSFER");
+    expect(big!.confidence).toBeGreaterThan(0.9);
   });
 
   it("returns no findings for a benign app", () => {
