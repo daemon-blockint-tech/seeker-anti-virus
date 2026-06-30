@@ -143,4 +143,83 @@ describe("SyncApiServer with x402 gating", () => {
     expect((await fetch(`${base}/health`)).status).toBe(200);
     expect((await fetch(`${base}/v1/rules`)).status).toBe(200);
   });
+
+  it("returns 402 (not 500) on a malformed payment amount", async () => {
+    const payer = "Payer1111111111111111111111111111111111111";
+    const nonce = randomUUID();
+    const resource = "/v1/scan/url";
+    const amount = "not-a-number";
+    const signature = verifier.sign({ resource, amount, payer, nonce });
+    const header = encodePaymentHeader({
+      x402Version: 1,
+      scheme: "exact",
+      network: "solana",
+      resource,
+      amount,
+      payer,
+      nonce,
+      signature,
+    });
+    const res = await fetch(`${base}${resource}`, {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-payment": header },
+      body: JSON.stringify({ url: "s0lana.xyz" }),
+    });
+    expect(res.status).toBe(402);
+    expect((await res.json()).error).toBe("invalid_amount");
+  });
+
+  it("rejects a payment with a mismatched protocol envelope", async () => {
+    const payer = "Payer1111111111111111111111111111111111111";
+    const nonce = randomUUID();
+    const resource = "/v1/scan/url";
+    const amount = "10000";
+    const signature = verifier.sign({ resource, amount, payer, nonce });
+    const header = encodePaymentHeader({
+      x402Version: 1,
+      scheme: "exact",
+      network: "ethereum" as never, // wrong network
+      resource,
+      amount,
+      payer,
+      nonce,
+      signature,
+    });
+    const res = await fetch(`${base}${resource}`, {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-payment": header },
+      body: JSON.stringify({ url: "s0lana.xyz" }),
+    });
+    expect(res.status).toBe(402);
+    expect((await res.json()).error).toBe("network_mismatch");
+  });
+});
+
+describe("SyncApiServer /v1/scan/text", () => {
+  const server = new SyncApiServer();
+  let base = "";
+  beforeAll(async () => {
+    const { port } = await server.listen(0);
+    base = `http://127.0.0.1:${port}`;
+  });
+  afterAll(() => server.close());
+
+  it("scans a raw text blob with no explicit id", async () => {
+    const res = await fetch(`${base}/v1/scan/text`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ text: "is_whitelisted; can_sell = false; transfer_hook" }),
+    });
+    expect(res.status).toBe(200);
+    expect((await res.json()).findings.length).toBeGreaterThan(0);
+  });
+
+  it("400s when text is empty", async () => {
+    const res = await fetch(`${base}/v1/scan/text`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ label: "no text" }),
+    });
+    expect(res.status).toBe(400);
+  });
 });

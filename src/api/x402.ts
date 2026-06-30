@@ -72,9 +72,13 @@ export interface PaymentVerifier {
  * x402 facilitator there.
  */
 export class HmacPaymentVerifier implements PaymentVerifier {
+  /** Insertion-ordered nonce store, capped to bound memory. */
   private usedNonces = new Set<string>();
+  private readonly maxNonces: number;
 
-  constructor(private readonly secret: string) {}
+  constructor(private readonly secret: string, maxNonces = 100_000) {
+    this.maxNonces = maxNonces;
+  }
 
   /** Compute the canonical signature for a payment (also used by clients). */
   sign(fields: Pick<PaymentPayload, "resource" | "amount" | "payer" | "nonce">): string {
@@ -84,12 +88,31 @@ export class HmacPaymentVerifier implements PaymentVerifier {
   }
 
   verify(payload: PaymentPayload, requirement: PaymentRequirements): VerificationResult {
+    // Defense-in-depth: reject mismatched protocol envelope before anything else.
+    if (payload.x402Version !== X402_VERSION) {
+      return { valid: false, reason: "unsupported_version" };
+    }
+    if (payload.scheme !== requirement.scheme) {
+      return { valid: false, reason: "scheme_mismatch" };
+    }
+    if (payload.network !== requirement.network) {
+      return { valid: false, reason: "network_mismatch" };
+    }
     if (payload.resource !== requirement.resource) {
       return { valid: false, reason: "resource_mismatch" };
     }
-    if (BigInt(payload.amount || "0") < BigInt(requirement.maxAmountRequired)) {
+
+    // Amount is attacker-controlled; BigInt() throws on non-numeric input.
+    let paid: bigint;
+    try {
+      paid = BigInt(payload.amount ?? "0");
+    } catch {
+      return { valid: false, reason: "invalid_amount" };
+    }
+    if (paid < BigInt(requirement.maxAmountRequired)) {
       return { valid: false, reason: "insufficient_amount" };
     }
+
     const expected = this.sign(payload);
     const a = Buffer.from(expected);
     const b = Buffer.from(payload.signature ?? "");
@@ -99,8 +122,18 @@ export class HmacPaymentVerifier implements PaymentVerifier {
     if (this.usedNonces.has(payload.nonce)) {
       return { valid: false, reason: "nonce_replayed" };
     }
-    this.usedNonces.add(payload.nonce);
+    this.rememberNonce(payload.nonce);
     return { valid: true, payer: payload.payer };
+  }
+
+  /** Record a spent nonce, evicting the oldest entries past the cap. */
+  private rememberNonce(nonce: string): void {
+    this.usedNonces.add(nonce);
+    if (this.usedNonces.size > this.maxNonces) {
+      // Sets preserve insertion order — drop the oldest entry.
+      const oldest = this.usedNonces.values().next().value;
+      if (oldest !== undefined) this.usedNonces.delete(oldest);
+    }
   }
 }
 
@@ -162,7 +195,13 @@ export class PaymentGate {
       return this.challenge(requirement, "invalid_payment_header");
     }
 
-    const result = await this.verifier.verify(payload, requirement);
+    // A faulty/3rd-party verifier must never crash the request — fail closed.
+    let result: VerificationResult;
+    try {
+      result = await this.verifier.verify(payload, requirement);
+    } catch {
+      return this.challenge(requirement, "verification_error");
+    }
     if (!result.valid) {
       return this.challenge(requirement, result.reason ?? "verification_failed");
     }
