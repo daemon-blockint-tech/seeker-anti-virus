@@ -207,7 +207,7 @@ const tools = createAgentTools(scanner); // scan_app, scan_contract, scan_url, a
 |--------|-------|----------------|
 | `scanner/` | `BehavioralScanner` | permissions, network/C2, crypto, binary loads (PRD 5.1) |
 | `signatures/` | `SignatureMatcher` | known Solana threat-pattern database (PRD 5.2) |
-| `yara/` | `YaraScanner`, `RuleManager` | 8 Solana YARA rules + custom rules (PRD 5.3) |
+| `yara/` | `YaraScanner`, `RuleManager` | 9 Solana YARA rules (incl. ransomware) + custom rules (PRD 5.3) |
 | `analyzer/` | `RiskScorer`, `ReportGenerator` | 0–100 scoring + plain-language reports (PRD §11) |
 | `monitor/` | `Monitor` | real-time sessions + alerts (FR-1/FR-3) |
 | `integrated-scanner` | `IntegratedScanner` | unified pipeline (PRD §9) |

@@ -130,4 +130,19 @@ export const SOLANA_YARA_RULES: YaraRule[] = [
     ],
     condition: { atLeast: 2 },
   },
+  {
+    name: "Sync_Ransomware",
+    category: "ransomware",
+    severity: "critical",
+    meta: { description: "File encryption plus a ransom note demanding crypto." },
+    strings: [
+      { id: "$c1", value: "AES/CBC/PKCS5Padding", type: "text" },
+      { id: "$c2", value: "getExternalStorageDirectory", type: "text" },
+      { id: "$c3", value: ".encrypted", type: "text", nocase: true },
+      { id: "$n1", value: "your files have been encrypted", type: "text", nocase: true },
+      { id: "$n2", value: "decryption key", type: "text", nocase: true },
+      { id: "$n3", value: "DevicePolicyManager", type: "text" },
+    ],
+    condition: { atLeast: 2 },
+  },
 ];
