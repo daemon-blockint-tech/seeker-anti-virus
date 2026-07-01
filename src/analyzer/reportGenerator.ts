@@ -32,6 +32,8 @@ const REMEDIATION_BY_CATEGORY: Record<string, string> = {
   honeypot: "Do not buy — sells are restricted by the contract.",
   exploit: "Avoid interacting with this contract until audited.",
   phishing: "Close the site; never enter your seed phrase. Verify the official domain.",
+  ransomware:
+    "Do not pay the ransom. Disconnect the network, force-stop the app, and revoke its Device Admin access before uninstalling; restore files from backup.",
 };
 
 /**

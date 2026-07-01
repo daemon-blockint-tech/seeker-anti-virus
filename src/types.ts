@@ -20,6 +20,7 @@ export type ThreatCategory =
   | "drainer"
   | "permission_abuse"
   | "c2"
+  | "ransomware"
   | "unknown";
 
 /** Android-style dangerous permissions Sync watches for. */
@@ -44,7 +45,9 @@ export interface BehaviorEvent {
     | "crypto_transaction"
     | "binary_load"
     | "clipboard_access"
-    | "accessibility";
+    | "accessibility"
+    | "file_access"
+    | "device_admin";
   timestamp: number;
   /** Permission requested (for permission_request events). */
   permission?: DangerousPermission;
@@ -62,6 +65,14 @@ export interface BehaviorEvent {
   source?: string;
   /** Whether the loaded binary/library was unsigned. */
   unsigned?: boolean;
+  /** File path touched (for file_access events). */
+  filePath?: string;
+  /** Whether the file was written back encrypted (for file_access events). */
+  encrypted?: boolean;
+  /** New extension if the file was renamed (e.g. ".locked", ".enc"). */
+  newExtension?: string;
+  /** Device-admin action requested (for device_admin events). */
+  adminAction?: "lock" | "wipe" | "reset_password";
   /** Free-form extra metadata. */
   meta?: Record<string, unknown>;
 }

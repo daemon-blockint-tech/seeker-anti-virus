@@ -32,6 +32,20 @@ const LARGE_TRANSFER_LAMPORTS = 5 * 1_000_000_000;
 /** Above this (~50 SOL) a transfer is treated as a near-certain anomaly. */
 const VERY_LARGE_TRANSFER_LAMPORTS = 50 * 1_000_000_000;
 
+/** Encrypting at least this many files in a session looks like ransomware. */
+const RANSOMWARE_ENCRYPTION_THRESHOLD = 10;
+/** Extensions commonly appended by mobile/desktop ransomware. */
+const RANSOM_EXTENSIONS = new Set([
+  ".locked",
+  ".enc",
+  ".crypt",
+  ".crypto",
+  ".cerber",
+  ".coin",
+  ".wallet",
+  ".encrypted",
+]);
+
 export interface BehavioralScannerOptions {
   /** Override the large-transfer threshold (in lamports). */
   largeTransferLamports?: number;
@@ -93,6 +107,9 @@ export class BehavioralScanner {
     const largeTransfers: string[] = [];
     let maxTransferLamports = 0;
     let clipboardReads = 0;
+    let encryptedFiles = 0;
+    const ransomExtensions = new Set<string>();
+    const adminActions = new Set<NonNullable<BehaviorEvent["adminAction"]>>();
 
     for (const ev of events) {
       switch (ev.type) {
@@ -116,6 +133,16 @@ export class BehavioralScanner {
           break;
         case "clipboard_access":
           clipboardReads++;
+          break;
+        case "file_access":
+          if (ev.encrypted) encryptedFiles++;
+          if (ev.newExtension && RANSOM_EXTENSIONS.has(ev.newExtension.toLowerCase())) {
+            ransomExtensions.add(ev.newExtension.toLowerCase());
+            encryptedFiles++;
+          }
+          break;
+        case "device_admin":
+          if (ev.adminAction) adminActions.add(ev.adminAction);
           break;
       }
     }
@@ -177,6 +204,44 @@ export class BehavioralScanner {
         severity: "medium",
         confidence: 0.6,
         evidence: [`${clipboardReads} clipboard reads`],
+      });
+    }
+
+    // Ransomware: bulk file encryption / ransom-extension rewrites.
+    if (encryptedFiles >= RANSOMWARE_ENCRYPTION_THRESHOLD) {
+      const evidence = [`${encryptedFiles} files encrypted`];
+      if (ransomExtensions.size > 0) {
+        evidence.push(`extensions: ${[...ransomExtensions].join(", ")}`);
+      }
+      findings.push({
+        source: "behavioral",
+        ruleId: "BEH_RANSOMWARE_ENCRYPTION",
+        title: "Mass file encryption (possible ransomware)",
+        description:
+          "App is rapidly encrypting or renaming many files — the hallmark of a ransomware file-locker.",
+        category: "ransomware",
+        // Bulk encryption alone is critical; a known ransom extension removes doubt.
+        severity: "critical",
+        confidence: ransomExtensions.size > 0 ? 0.95 : 0.8,
+        evidence,
+      });
+    }
+
+    // Ransomware / screen-locker abuse of Device Admin APIs.
+    if (adminActions.size > 0) {
+      const wipes = adminActions.has("wipe");
+      findings.push({
+        source: "behavioral",
+        ruleId: "BEH_DEVICE_ADMIN_ABUSE",
+        title: wipes
+          ? "Device wipe requested (locker / wiper)"
+          : "Device lock / password reset (screen-locker)",
+        description:
+          "App invoked Device Admin actions used by ransomware screen-lockers to lock the device or hold data hostage.",
+        category: "ransomware",
+        severity: wipes ? "critical" : "high",
+        confidence: wipes ? 0.9 : 0.8,
+        evidence: [...adminActions].map((a) => `device_admin:${a}`),
       });
     }
 

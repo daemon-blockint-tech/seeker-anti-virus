@@ -109,6 +109,7 @@ Monitors runtime behavior of installed apps:
 - **Network analysis** — detects command-and-control (C2) connections and suspicious endpoints.
 - **Crypto-transaction monitoring** — flags large/anomalous transfers and unusual program interactions.
 - **Binary-injection detection** — catches code-injection and unauthorized binary loads.
+- **Ransomware detection** — flags bulk file encryption / ransom-extension rewrites and abuse of Device Admin APIs (screen-lock, wipe, password reset) used by mobile ransomware and screen-lockers.
 - **MWA identity verification** — leverages the dApp identity attestation from MWA's `authorize` method (`identity.uri`, `identity.name`) as a phishing-detection signal. The MWA protocol provides domain-based dApp identity verification; Sync cross-references the attested domain against known phishing patterns and reputation databases.
 
 ### 5.2 Signature Matcher
@@ -131,6 +132,7 @@ Binary/bytecode pattern-matching engine (VirusTotal YARA-compatible) with Solana
 | NFT Scam | exploit | High | Fraudulent mint + fee extraction |
 | Mobile Keylogger | malware | Critical | Input capture + exfiltration |
 | Remote Access Trojan | trojan | Critical | C2 socket + command loop |
+| Ransomware | ransomware | Critical | File encryption + ransom note + Device Admin abuse |
 
 Supports custom rules and YARA-format export for interoperability with external tooling.
 
@@ -299,7 +301,7 @@ The **signature matcher (§5.2)** is not a third weighted term: a signature hit 
 - Behavioral scanner, signature database, threat analyzer, real-time monitor.
 
 ### Phase 2 — YARA Integration (Planned)
-- 8 Solana-specific YARA rules, binary/contract scanning, rule management, agent tools.
+- Solana-specific YARA rules (incl. ransomware), binary/contract scanning, rule management, agent tools.
 
 ### Phase 3 — LLM Classification (Planned)
 - DeepAgentsJS agent, on-chain context via Helius, Neo4j threat graph, intelligence reports.

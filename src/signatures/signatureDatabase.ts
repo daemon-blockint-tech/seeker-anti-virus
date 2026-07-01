@@ -100,4 +100,18 @@ export const DEFAULT_SIGNATURES: ThreatSignature[] = [
     ],
     description: "Code references mnemonic/secret-key material alongside network egress.",
   },
+  {
+    id: "SIG_RANSOMWARE_NOTE",
+    name: "Ransomware ransom note",
+    category: "ransomware",
+    severity: "critical",
+    patterns: [
+      /your\s+(files|data|device|phone)\s+(have|has)\s+been\s+(encrypted|locked)/i,
+      /pay\s+(the\s+)?ransom/i,
+      /send\s+(\$?\d+\s+)?(in\s+)?(bitcoin|btc|monero|xmr|usdc|sol)\b/i,
+      /decrypt(ion)?\s+key/i,
+      /all\s+your\s+files\s+are\s+encrypted/i,
+    ],
+    description: "Text contains a ransom note demanding crypto payment to restore encrypted/locked data.",
+  },
 ];

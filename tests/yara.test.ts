@@ -2,8 +2,9 @@ import { describe, expect, it } from "vitest";
 import { RuleManager, YaraScanner, SOLANA_YARA_RULES, type ScanTarget } from "../src/index.js";
 
 describe("YARA", () => {
-  it("ships the 8 Solana-specific rules", () => {
-    expect(SOLANA_YARA_RULES).toHaveLength(8);
+  it("ships the Solana-specific rule set", () => {
+    expect(SOLANA_YARA_RULES).toHaveLength(9);
+    expect(SOLANA_YARA_RULES.map((r) => r.name)).toContain("Sync_Ransomware");
   });
 
   it("detects a wallet stealer via 'N of them' condition", () => {
