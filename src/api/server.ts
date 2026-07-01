@@ -88,7 +88,7 @@ export class SyncApiServer {
   close(): Promise<void> {
     return new Promise((resolve, reject) =>
       this.server
-        ? this.server.close((e: Error | null) => {
+        ? this.server.close((e?: Error) => {
             this.server = undefined;
             if (e) reject(e);
             else resolve();
