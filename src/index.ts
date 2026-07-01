@@ -72,6 +72,27 @@ export type {
   GateResult,
 } from "./api/x402.js";
 
+// On-device threat database + signed OTA updates — Phase 4/§8 (FR-8/FR-9)
+export {
+  ThreatStore,
+  InMemoryBackend,
+  SqliteBackend,
+  OtaUpdater,
+  BundleSigner,
+  BundleVerifier,
+  BundleVerificationError,
+} from "./threat-db/index.js";
+export type {
+  SqliteBackendOptions,
+  ApplyTargets,
+  ApplyResult,
+  ThreatRecord,
+  ThreatBundle,
+  SignedBundle,
+  ThreatStoreBackend,
+  IndicatorKind,
+} from "./threat-db/index.js";
+
 // MWA transaction interception — Phase 4 (PRD §5.5, FR-2)
 export {
   ScreeningPipeline,
