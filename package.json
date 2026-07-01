@@ -38,7 +38,7 @@
     "threat-detection"
   ],
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "devDependencies": {
     "@types/node": "^26.0.1",
