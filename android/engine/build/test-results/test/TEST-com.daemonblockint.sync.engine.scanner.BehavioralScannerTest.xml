@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.daemonblockint.sync.engine.scanner.BehavioralScannerTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-07-01T09:35:19" hostname="mbp-a7f3" time="0.006">
+  <properties/>
+  <testcase name="raw IP host triggers C2 finding" classname="com.daemonblockint.sync.engine.scanner.BehavioralScannerTest" time="0.002"/>
+  <testcase name="clipboard plus accessibility combo is high severity" classname="com.daemonblockint.sync.engine.scanner.BehavioralScannerTest" time="0.0"/>
+  <testcase name="repeated clipboard access triggers hijack finding" classname="com.daemonblockint.sync.engine.scanner.BehavioralScannerTest" time="0.001"/>
+  <testcase name="dangerous permissions are flagged" classname="com.daemonblockint.sync.engine.scanner.BehavioralScannerTest" time="0.0"/>
+  <testcase name="large transfer triggers anomalous transfer finding" classname="com.daemonblockint.sync.engine.scanner.BehavioralScannerTest" time="0.001"/>
+  <testcase name="clean target produces no findings" classname="com.daemonblockint.sync.engine.scanner.BehavioralScannerTest" time="0.0"/>
+  <testcase name="suspicious host triggers C2 finding" classname="com.daemonblockint.sync.engine.scanner.BehavioralScannerTest" time="0.0"/>
+  <testcase name="unsigned binary load triggers injection finding" classname="com.daemonblockint.sync.engine.scanner.BehavioralScannerTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

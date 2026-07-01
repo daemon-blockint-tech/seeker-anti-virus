@@ -1,0 +1,4 @@
+/Users/macbook/Library/Android/sdk/cmake/3.22.1/bin/ninja \
+  -C \
+  /Users/macbook/DAEMON_BLOCKINT_TECHNOLOGIES/seeker-anti-virus/android/yara-native/.cxx/Debug/384z5272/armeabi-v7a \
+  yara_jni

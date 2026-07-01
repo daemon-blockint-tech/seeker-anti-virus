@@ -16,9 +16,10 @@ class ScreeningPipelineTest {
 
     @Test
     fun `clean transaction is allowed`() {
-        // Minimal legacy message: 1 signer, 0 readonly, 1 account, blockhash, 0 instructions
+        // Minimal legacy message: 0 signers, 0 readonly, 1 account, blockhash, 0 instructions
+        // First byte 0 ensures decodeTransaction treats this as a bare message (not signed tx)
         val msg = byteArrayOf(
-            1, 0, 0,  // header: 1 required sig, 0 readonly-signed, 0 readonly-unsigned
+            0, 0, 0,  // header: 0 required sigs, 0 readonly-signed, 0 readonly-unsigned
             1,        // 1 account
             *ByteArray(32), // zero account key
             *ByteArray(32), // zero blockhash
@@ -51,7 +52,7 @@ class WireTest {
         // Known: [0] -> "1"
         assertEquals("1", bytesToBase58(byteArrayOf(0)))
         // Known: [255] -> "2v" (well-known test vector)
-        val encoded = bytesToBase58(byteArrayOf(255))
+        val encoded = bytesToBase58(byteArrayOf(255.toByte()))
         assertTrue(encoded.isNotEmpty())
     }
 

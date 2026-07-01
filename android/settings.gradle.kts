@@ -11,12 +11,12 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven("https://solanamobile.jfrog.io/artifactory/maven")
     }
 }
 
 rootProject.name = "sync-android"
 
-include(":app")
 include(":engine")
 include(":yara-native")
+include(":shodan-native")
+include(":app")

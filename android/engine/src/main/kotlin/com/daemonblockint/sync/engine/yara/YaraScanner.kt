@@ -112,9 +112,9 @@ class YaraScanner(private val rules: List<YaraRule>) {
             for (s in rule.strings) {
                 val mods = if (s.nocase) " nocase" else ""
                 when (s.type) {
-                    YaraString.Type.REGEX -> lines.add("    ${s.id} = /${s.value}/${if (s.nocase) "i" else ""}")
-                    YaraString.Type.HEX -> lines.add("    ${s.id} = { ${s.value} }")
-                    YaraString.Type.TEXT -> lines.add("    ${s.id} = \"${s.value}\"$mods")
+                    YaraString.Type.REGEX -> lines.add("    \$${s.id} = /${s.value}/${if (s.nocase) "i" else ""}")
+                    YaraString.Type.HEX -> lines.add("    \$${s.id} = { ${s.value} }")
+                    YaraString.Type.TEXT -> lines.add("    \$${s.id} = \"${s.value}\"$mods")
                 }
             }
             lines.add("  condition:")

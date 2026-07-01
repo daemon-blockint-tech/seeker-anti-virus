@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "com.daemonblockint.sync.app-debug-67:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.daemonblockint.sync.app-main-69:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "com.daemonblockint.sync.app-debug-67:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.daemonblockint.sync.app-main-69:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    }
+]

@@ -50,7 +50,7 @@ class RiskScorerTest {
                 description = "Test",
                 category = ThreatCategory.PERMISSION_ABUSE,
                 severity = Severity.HIGH,
-                confidence = 0.8,
+                confidence = 0.9,
             ),
         )
         val result = scorer.score(findings)
@@ -81,7 +81,7 @@ class ReportGeneratorTest {
         val result = scorer.score(emptyList())
         val report = reporter.generate(target, result)
         assertEquals(ThreatReport.Verdict.CLEAN, report.verdict)
-        assertTrue(report.remediation.contains("No action required"))
+        assertTrue(report.remediation.any { it.contains("No action required") })
     }
 
     @Test

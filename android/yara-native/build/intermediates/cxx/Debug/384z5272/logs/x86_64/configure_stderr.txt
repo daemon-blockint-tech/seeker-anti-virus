@@ -1,0 +1,6 @@
+CMake Warning at CMakeLists.txt:13 (message):
+  libyara not found at
+  /Users/macbook/DAEMON_BLOCKINT_TECHNOLOGIES/seeker-anti-virus/android/yara-native/src/main/cpp/libyara.
+  Building stub.  Run ./setup-libyara.sh to vendor libyara.
+
+

@@ -10,7 +10,7 @@ work-manager = "2.9.0"
 room = "2.6.1"
 sqlcipher = "4.5.4"
 navigation = "2.7.7"
-solana-mobile-wallet-adapter = "2.0.0"
+solana-mobile-wallet-adapter = "2.1.0"
 junit = "4.13.2"
 androidx-test-junit = "1.2.1"
 espresso = "3.6.1"
@@ -54,8 +54,8 @@ sqlcipher = { group = "net.zetetic", name = "android-database-sqlcipher", versio
 sqlite-ktx = { group = "androidx.sqlite", name = "sqlite-ktx", version = "2.4.0" }
 
 # Solana Mobile
-solana-wallet-adapter = { group = "com.solanamobile", name = "walletadapter", version.ref = "solana-mobile-wallet-adapter" }
-solana-wallet-adapter-lib = { group = "com.solanamobile", name = "walletadapterlib", version.ref = "solana-mobile-wallet-adapter" }
+solana-wallet-adapter = { group = "com.solanamobile", name = "mobile-wallet-adapter-clientlib", version.ref = "solana-mobile-wallet-adapter" }
+solana-wallet-adapter-lib = { group = "com.solanamobile", name = "mobile-wallet-adapter-walletlib", version.ref = "solana-mobile-wallet-adapter" }
 
 # Core
 core-ktx = { group = "androidx.core", name = "core-ktx", version = "1.13.1" }

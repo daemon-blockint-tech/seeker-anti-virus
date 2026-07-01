@@ -54,6 +54,7 @@ dependencies {
     // Modules
     implementation(project(":engine"))
     implementation(project(":yara-native"))
+    implementation(project(":shodan-native"))
 
     // Compose
     implementation(platform(libs.compose.bom))
@@ -76,6 +77,8 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
+    implementation("androidx.hilt:hilt-work:1.2.0")
+    ksp("androidx.hilt:hilt-compiler:1.2.0")
 
     // Coroutines
     implementation(libs.coroutines.core)

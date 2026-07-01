@@ -20,7 +20,7 @@ class BehavioralScannerTest {
             id = "com.clean.app",
             kind = ScanTarget.Kind.APP,
             permissions = emptyList(),
-            events = emptyList(),
+            events = mutableListOf(),
         )
         assertEquals(0, scanner.scan(target).size)
     }
@@ -58,7 +58,7 @@ class BehavioralScannerTest {
         val target = ScanTarget(
             id = "com.c2.app",
             kind = ScanTarget.Kind.APP,
-            events = listOf(
+            events = mutableListOf(
                 BehaviorEvent(
                     type = BehaviorEvent.Type.NETWORK,
                     timestamp = 0,
@@ -79,7 +79,7 @@ class BehavioralScannerTest {
         val target = ScanTarget(
             id = "com.ip.app",
             kind = ScanTarget.Kind.APP,
-            events = listOf(
+            events = mutableListOf(
                 BehaviorEvent(
                     type = BehaviorEvent.Type.NETWORK,
                     timestamp = 0,
@@ -96,7 +96,7 @@ class BehavioralScannerTest {
         val target = ScanTarget(
             id = "com.transfer.app",
             kind = ScanTarget.Kind.APP,
-            events = listOf(
+            events = mutableListOf(
                 BehaviorEvent(
                     type = BehaviorEvent.Type.CRYPTO_TRANSACTION,
                     timestamp = 0,
@@ -116,7 +116,7 @@ class BehavioralScannerTest {
         val target = ScanTarget(
             id = "com.inject.app",
             kind = ScanTarget.Kind.APP,
-            events = listOf(
+            events = mutableListOf(
                 BehaviorEvent(
                     type = BehaviorEvent.Type.BINARY_LOAD,
                     timestamp = 0,
@@ -136,7 +136,7 @@ class BehavioralScannerTest {
             kind = ScanTarget.Kind.APP,
             events = (1..3).map {
                 BehaviorEvent(type = BehaviorEvent.Type.CLIPBOARD_ACCESS, timestamp = it.toLong())
-            },
+            }.toMutableList(),
         )
         val findings = scanner.scan(target)
         assertTrue(findings.any { it.ruleId == "BEH_CLIPBOARD_HIJACK" })

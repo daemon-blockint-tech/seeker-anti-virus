@@ -40,6 +40,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":engine"))
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
 }

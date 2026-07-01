@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.daemonblockint.sync.engine.analyzer.ReportGeneratorTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-07-01T09:35:19" hostname="mbp-a7f3" time="0.036">
+  <properties/>
+  <testcase name="findings are sorted by severity descending" classname="com.daemonblockint.sync.engine.analyzer.ReportGeneratorTest" time="0.029"/>
+  <testcase name="critical report has blocked verdict" classname="com.daemonblockint.sync.engine.analyzer.ReportGeneratorTest" time="0.004"/>
+  <testcase name="clean report has clean verdict" classname="com.daemonblockint.sync.engine.analyzer.ReportGeneratorTest" time="0.002"/>
+  <testcase name="remediation steps are deduplicated" classname="com.daemonblockint.sync.engine.analyzer.ReportGeneratorTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -53,7 +53,7 @@ class ThreatStoreTest {
         val target = ScanTarget(
             id = "test",
             kind = ScanTarget.Kind.TRANSACTION,
-            events = listOf(
+            events = mutableListOf(
                 BehaviorEvent(
                     type = BehaviorEvent.Type.CRYPTO_TRANSACTION,
                     timestamp = 0,
@@ -71,7 +71,7 @@ class ThreatStoreTest {
         val store = ThreatStore()
         store.add(listOf(
             makeRecord(indicator = "old.com", expiresAt = 500L),
-            makeRecord(indicator = "new.com", expiresAt = 999_999_999L),
+            makeRecord(indicator = "new.com", expiresAt = Long.MAX_VALUE),
         ))
         val purged = store.purgeExpired(now = 1000L)
         assertEquals(1, purged)

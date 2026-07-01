@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.daemonblockint.sync.engine.yara.RuleManagerTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-07-01T09:35:19" hostname="mbp-a7f3" time="0.011">
+  <properties/>
+  <testcase name="add and remove rules" classname="com.daemonblockint.sync.engine.yara.RuleManagerTest" time="0.0"/>
+  <testcase name="atLeast exceeding string count throws" classname="com.daemonblockint.sync.engine.yara.RuleManagerTest" time="0.008"/>
+  <testcase name="default rules are loaded" classname="com.daemonblockint.sync.engine.yara.RuleManagerTest" time="0.0"/>
+  <testcase name="invalid rule name throws" classname="com.daemonblockint.sync.engine.yara.RuleManagerTest" time="0.0"/>
+  <testcase name="exportAll produces all rules" classname="com.daemonblockint.sync.engine.yara.RuleManagerTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,6 +1,7 @@
 package com.daemonblockint.sync.engine.integrated
 
 import com.daemonblockint.sync.engine.DangerousPermission
+import com.daemonblockint.sync.engine.Finding
 import com.daemonblockint.sync.engine.ScanTarget
 import com.daemonblockint.sync.engine.Severity
 import org.junit.Test

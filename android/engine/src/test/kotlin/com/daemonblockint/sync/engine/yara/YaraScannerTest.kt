@@ -4,6 +4,7 @@ import com.daemonblockint.sync.engine.ScanTarget
 import com.daemonblockint.sync.engine.Severity
 import org.junit.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -20,7 +21,7 @@ class YaraScannerTest {
         val findings = scanner.scan(target)
         val steal = findings.find { it.ruleId == "Sync_Wallet_Stealer" }
         assertNotNull(steal)
-        assertEquals(Severity.CRITICAL, steal.severity)
+        assertEquals(Severity.CRITICAL, steal!!.severity)
     }
 
     @Test
@@ -87,7 +88,7 @@ class RuleManagerTest {
             category = com.daemonblockint.sync.engine.ThreatCategory.MALWARE,
             severity = Severity.HIGH,
             meta = YaraMeta(description = "Custom"),
-            strings = listOf(YaraString("$a", "evil", YaraString.Type.TEXT)),
+            strings = listOf(YaraString("a", "evil", YaraString.Type.TEXT)),
             condition = YaraCondition.Any,
         )
         mgr.add(custom)
@@ -104,10 +105,10 @@ class RuleManagerTest {
             category = com.daemonblockint.sync.engine.ThreatCategory.MALWARE,
             severity = Severity.HIGH,
             meta = YaraMeta(description = "Bad"),
-            strings = listOf(YaraString("$a", "evil", YaraString.Type.TEXT)),
+            strings = listOf(YaraString("a", "evil", YaraString.Type.TEXT)),
             condition = YaraCondition.Any,
         )
-        assertThrows<IllegalArgumentException> { mgr.add(bad) }
+        assertFailsWith<IllegalArgumentException> { mgr.add(bad) }
     }
 
     @Test
@@ -118,10 +119,10 @@ class RuleManagerTest {
             category = com.daemonblockint.sync.engine.ThreatCategory.MALWARE,
             severity = Severity.HIGH,
             meta = YaraMeta(description = "Bad"),
-            strings = listOf(YaraString("$a", "evil", YaraString.Type.TEXT)),
+            strings = listOf(YaraString("a", "evil", YaraString.Type.TEXT)),
             condition = YaraCondition.AtLeast(5),
         )
-        assertThrows<IllegalArgumentException> { mgr.add(bad) }
+        assertFailsWith<IllegalArgumentException> { mgr.add(bad) }
     }
 
     @Test

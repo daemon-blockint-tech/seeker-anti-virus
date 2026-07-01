@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.daemonblockint.sync.engine.yara.YaraScannerTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-07-01T09:35:19" hostname="mbp-a7f3" time="0.001">
+  <properties/>
+  <testcase name="flash loan requires all three strings" classname="com.daemonblockint.sync.engine.yara.YaraScannerTest" time="0.0"/>
+  <testcase name="wallet stealer rule matches seed phrase text" classname="com.daemonblockint.sync.engine.yara.YaraScannerTest" time="0.001"/>
+  <testcase name="exportRule produces valid YARA syntax" classname="com.daemonblockint.sync.engine.yara.YaraScannerTest" time="0.0"/>
+  <testcase name="rug pull rule matches liquidity drain text" classname="com.daemonblockint.sync.engine.yara.YaraScannerTest" time="0.0"/>
+  <testcase name="clean text produces no findings" classname="com.daemonblockint.sync.engine.yara.YaraScannerTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

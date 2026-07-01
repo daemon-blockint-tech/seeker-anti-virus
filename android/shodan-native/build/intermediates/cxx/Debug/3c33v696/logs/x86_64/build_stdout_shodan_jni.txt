@@ -1,0 +1,2 @@
+ninja: Entering directory `/Users/macbook/DAEMON_BLOCKINT_TECHNOLOGIES/seeker-anti-virus/android/shodan-native/.cxx/Debug/3c33v696/x86_64'
+ninja: no work to do.

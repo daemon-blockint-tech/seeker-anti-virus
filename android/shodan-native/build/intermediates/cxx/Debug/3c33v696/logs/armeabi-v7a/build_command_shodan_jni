@@ -1,0 +1,4 @@
+/Users/macbook/Library/Android/sdk/cmake/3.22.1/bin/ninja \
+  -C \
+  /Users/macbook/DAEMON_BLOCKINT_TECHNOLOGIES/seeker-anti-virus/android/shodan-native/.cxx/Debug/3c33v696/armeabi-v7a \
+  shodan_jni

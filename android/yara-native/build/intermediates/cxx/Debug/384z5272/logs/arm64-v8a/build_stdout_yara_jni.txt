@@ -1,0 +1,2 @@
+ninja: Entering directory `/Users/macbook/DAEMON_BLOCKINT_TECHNOLOGIES/seeker-anti-virus/android/yara-native/.cxx/Debug/384z5272/arm64-v8a'
+ninja: no work to do.

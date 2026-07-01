@@ -7,8 +7,10 @@ import com.daemonblockint.sync.engine.analyzer.RiskResult
 import com.daemonblockint.sync.engine.analyzer.RiskScorer
 import com.daemonblockint.sync.engine.scanner.BehavioralScanner
 import com.daemonblockint.sync.engine.signatures.SignatureMatcher
+import com.daemonblockint.sync.engine.signatures.DEFAULT_SIGNATURES
 import com.daemonblockint.sync.engine.signatures.ThreatSignature
 import com.daemonblockint.sync.engine.yara.RuleManager
+import com.daemonblockint.sync.engine.yara.SOLANA_YARA_RULES
 import com.daemonblockint.sync.engine.yara.YaraRule
 
 /** Optional LLM classifier hook (PRD 5.4) — opt-in, async, off by default. */
@@ -17,8 +19,8 @@ fun interface LlmClassifier {
 }
 
 data class IntegratedScannerOptions(
-    val signatures: List<ThreatSignature> = emptyList(),
-    val yaraRules: List<YaraRule> = emptyList(),
+    val signatures: List<ThreatSignature> = DEFAULT_SIGNATURES,
+    val yaraRules: List<YaraRule> = SOLANA_YARA_RULES,
     val llm: LlmClassifier? = null,
     val llmEscalationThreshold: Int = 60,
     val onLlmError: (error: Throwable, target: ScanTarget) -> Unit = { err, target ->

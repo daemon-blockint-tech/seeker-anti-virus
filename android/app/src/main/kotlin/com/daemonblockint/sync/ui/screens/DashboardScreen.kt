@@ -22,6 +22,7 @@ import com.daemonblockint.sync.engine.Severity
 import com.daemonblockint.sync.engine.analyzer.ThreatReport
 import com.daemonblockint.sync.ui.viewmodel.DashboardViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
     onNavigateToAlerts: () -> Unit,
