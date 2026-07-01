@@ -214,6 +214,7 @@ const tools = createAgentTools(scanner); // scan_app, scan_contract, scan_url, a
 | `llm/` | `makeLlmClassifier` | LangGraph + OpenRouter classifier (PRD 5.4) |
 | `agent-tools` | `createAgentTools` | DeepAgentsJS tool definitions (PRD §9) |
 | `api/` | `SyncApiServer`, `PaymentGate` | public scanning API + x402 gating (FR-14/16) |
+| `phishing/` | `DomainSpoofDetector` | `.skr` / look-alike domain spoof detection (FR-7/FR-7b) |
 | `interception/` | `SyncWalletEndpoint`, `ScreeningPipeline` | MWA tx interception + screening (§5.5, FR-2) |
 | `threat-db/` | `ThreatStore`, `OtaUpdater` | on-device SQLite threat cache + signed OTA updates (§8, FR-8/9) |
 
