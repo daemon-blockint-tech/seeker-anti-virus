@@ -1,6 +1,7 @@
 import { ReportGenerator, type ThreatReport } from "../analyzer/reportGenerator.js";
 import { RiskScorer, type RiskResult } from "../analyzer/riskScorer.js";
 import { BehavioralScanner } from "../scanner/behavioralScanner.js";
+import { DomainSpoofDetector } from "../phishing/domainSpoofDetector.js";
 import { SignatureMatcher } from "../signatures/signatureMatcher.js";
 import type { ThreatSignature } from "../signatures/signatureDatabase.js";
 import type { Finding, ScanTarget } from "../types.js";
@@ -38,6 +39,7 @@ export interface ScanResult extends RiskResult {
 export class IntegratedScanner {
   private readonly behavioral = new BehavioralScanner();
   private readonly signatures: SignatureMatcher;
+  private readonly domainSpoof = new DomainSpoofDetector();
   private readonly rules: RuleManager;
   private readonly scorer = new RiskScorer();
   private readonly reporter = new ReportGenerator();
@@ -70,6 +72,7 @@ export class IntegratedScanner {
     const findings: Finding[] = [
       ...this.behavioral.scan(target),
       ...this.signatures.scan(target),
+      ...this.domainSpoof.scan(target),
       ...this.rules.scanner().scan(target),
     ];
 
@@ -97,6 +100,7 @@ export class IntegratedScanner {
     const findings: Finding[] = [
       ...this.behavioral.scan(target),
       ...this.signatures.scan(target),
+      ...this.domainSpoof.scan(target),
       ...this.rules.scanner().scan(target),
     ];
     const result = this.scorer.score(findings);

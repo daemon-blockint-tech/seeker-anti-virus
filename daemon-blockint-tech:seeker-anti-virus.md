@@ -118,6 +118,8 @@ Fast lookup against a curated database of known Solana threat patterns: rug pull
 
 **dApp Store reputation lookup** — dApp Store listings are represented as NFTs on Solana with on-chain metadata (name, description, icon, APK hash, publisher address). Sync cross-references this metadata for reputation scoring: listing age, publisher history, APK hash matches against known-malicious builds, and verification of publisher identity.
 
+**Domain / `.skr` spoof detection (FR-7b)** — beyond the static look-alike list, Sync algorithmically flags phishing domains and spoofed `.skr` Solana Mobile naming entries that impersonate protected wallet/dApp brands. It folds each label to an ASCII "skeleton" (digit, symbol, and Cyrillic/Greek homoglyph confusables) and flags homograph (Unicode IDN), character-substitution, and typosquat (edit-distance) variants — with `.skr` handles called out specifically as they target Seeker wallet users.
+
 ### 5.3 YARA Scanner
 
 Binary/bytecode pattern-matching engine (VirusTotal YARA-compatible) with Solana-specific rules:

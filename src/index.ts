@@ -72,6 +72,17 @@ export type {
   GateResult,
 } from "./api/x402.js";
 
+// Domain / .skr spoof detection — FR-7/FR-7b
+export { DomainSpoofDetector } from "./phishing/domainSpoofDetector.js";
+export {
+  analyzeDomainSpoof,
+  skeletonize,
+  levenshtein,
+  parseHost,
+  PROTECTED_BRANDS,
+} from "./phishing/domainSpoof.js";
+export type { SpoofAnalysis, SpoofTechnique } from "./phishing/domainSpoof.js";
+
 // On-device threat database + signed OTA updates — Phase 4/§8 (FR-8/FR-9)
 export {
   ThreatStore,
