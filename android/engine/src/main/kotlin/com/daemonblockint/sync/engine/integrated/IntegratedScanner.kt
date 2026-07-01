@@ -9,6 +9,7 @@ import com.daemonblockint.sync.engine.scanner.BehavioralScanner
 import com.daemonblockint.sync.engine.signatures.SignatureMatcher
 import com.daemonblockint.sync.engine.signatures.DEFAULT_SIGNATURES
 import com.daemonblockint.sync.engine.signatures.ThreatSignature
+import com.daemonblockint.sync.engine.threatdb.ThreatStore
 import com.daemonblockint.sync.engine.yara.RuleManager
 import com.daemonblockint.sync.engine.yara.SOLANA_YARA_RULES
 import com.daemonblockint.sync.engine.yara.YaraRule
@@ -21,6 +22,7 @@ fun interface LlmClassifier {
 data class IntegratedScannerOptions(
     val signatures: List<ThreatSignature> = DEFAULT_SIGNATURES,
     val yaraRules: List<YaraRule> = SOLANA_YARA_RULES,
+    val threatStore: ThreatStore? = null,
     val llm: LlmClassifier? = null,
     val llmEscalationThreshold: Int = 60,
     val onLlmError: (error: Throwable, target: ScanTarget) -> Unit = { err, target ->
@@ -41,7 +43,7 @@ data class ScanResult(
 /**
  * Integrated Scanner (PRD core module `integrated-scanner`).
  *
- * Unified pipeline: Behavioral → Signature → YARA → (opt-in) LLM, fed into the
+ * Unified pipeline: Behavioral → Signature → YARA → ThreatDB → (opt-in) LLM, fed into the
  * Risk Scoring Engine and Report Generator. This is the primary entry point a
  * mobile/host app calls.
  */
@@ -51,6 +53,7 @@ class IntegratedScanner(
     private val behavioral = BehavioralScanner()
     private val signatures: SignatureMatcher = SignatureMatcher(options.signatures.toMutableList())
     private val rules: RuleManager = RuleManager(options.yaraRules)
+    private val threatStore: ThreatStore? = options.threatStore
     private val scorer = RiskScorer()
     private val reporter = ReportGenerator()
 
@@ -58,12 +61,16 @@ class IntegratedScanner(
     val ruleManager: RuleManager get() = rules
     val signatureMatcher: SignatureMatcher get() = signatures
 
+    /** Access the threat store for OTA updates (PRD §8). Null if not configured. */
+    val threatStoreRef: ThreatStore? get() = threatStore
+
     /** Run the full pipeline against a target and produce a scored report. */
     suspend fun scan(target: ScanTarget): ScanResult {
         val findings = mutableListOf<Finding>()
         findings.addAll(behavioral.scan(target))
         findings.addAll(signatures.scan(target))
         findings.addAll(rules.scanner().scan(target))
+        threatStore?.let { findings.addAll(it.scan(target)) }
 
         // Opt-in LLM escalation for ambiguous/high-stakes cases (PRD 5.4).
         if (options.llm != null) {
@@ -86,6 +93,7 @@ class IntegratedScanner(
         findings.addAll(behavioral.scan(target))
         findings.addAll(signatures.scan(target))
         findings.addAll(rules.scanner().scan(target))
+        threatStore?.let { findings.addAll(it.scan(target)) }
         return finalize(target, findings)
     }
 

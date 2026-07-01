@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.daemonblockint.sync.engine.TypesTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-07-01T09:35:19" hostname="mbp-a7f3" time="0.0">
-  <properties/>
-  <testcase name="scoreToSeverity maps correctly" classname="com.daemonblockint.sync.engine.TypesTest" time="0.0"/>
-  <testcase name="severity score ceiling is correct" classname="com.daemonblockint.sync.engine.TypesTest" time="0.0"/>
-  <testcase name="severity rank is ordered" classname="com.daemonblockint.sync.engine.TypesTest" time="0.0"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>

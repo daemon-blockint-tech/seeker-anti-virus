@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.daemonblockint.sync.engine.interception.ScreeningPipelineTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-07-01T09:35:19" hostname="mbp-a7f3" time="0.01">
-  <properties/>
-  <testcase name="clean transaction is allowed" classname="com.daemonblockint.sync.engine.interception.ScreeningPipelineTest" time="0.01"/>
-  <testcase name="phishing domain in text triggers warn or block" classname="com.daemonblockint.sync.engine.interception.ScreeningPipelineTest" time="0.0"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
