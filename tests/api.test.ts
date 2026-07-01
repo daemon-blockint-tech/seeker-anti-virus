@@ -15,7 +15,15 @@ const PAY_TO = "SyncTreasury11111111111111111111111111111111";
 function payHeader(verifier: HmacPaymentVerifier, resource: string, amount = "10000"): string {
   const payer = "Payer1111111111111111111111111111111111111";
   const nonce = randomUUID();
-  const signature = verifier.sign({ resource, amount, payer, nonce });
+  const signature = verifier.sign({
+    x402Version: 1,
+    scheme: "exact",
+    network: "solana",
+    resource,
+    amount,
+    payer,
+    nonce,
+  });
   const payload: PaymentPayload = {
     x402Version: 1,
     scheme: "exact",
@@ -149,7 +157,15 @@ describe("SyncApiServer with x402 gating", () => {
     const nonce = randomUUID();
     const resource = "/v1/scan/url";
     const amount = "not-a-number";
-    const signature = verifier.sign({ resource, amount, payer, nonce });
+    const signature = verifier.sign({
+      x402Version: 1,
+      scheme: "exact",
+      network: "solana",
+      resource,
+      amount,
+      payer,
+      nonce,
+    });
     const header = encodePaymentHeader({
       x402Version: 1,
       scheme: "exact",
@@ -174,7 +190,15 @@ describe("SyncApiServer with x402 gating", () => {
     const nonce = randomUUID();
     const resource = "/v1/scan/url";
     const amount = "10000";
-    const signature = verifier.sign({ resource, amount, payer, nonce });
+    const signature = verifier.sign({
+      x402Version: 1,
+      scheme: "exact",
+      network: "solana",
+      resource,
+      amount,
+      payer,
+      nonce,
+    });
     const header = encodePaymentHeader({
       x402Version: 1,
       scheme: "exact",

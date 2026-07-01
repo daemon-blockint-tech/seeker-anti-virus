@@ -72,18 +72,31 @@ export interface PaymentVerifier {
  * x402 facilitator there.
  */
 export class HmacPaymentVerifier implements PaymentVerifier {
-  /** Insertion-ordered nonce store, capped to bound memory. */
-  private usedNonces = new Set<string>();
+  /** nonce → expiry timestamp (ms). Expired entries are lazily purged. */
+  private usedNonces = new Map<string, number>();
   private readonly maxNonces: number;
+  private readonly nonceTtlMs: number;
 
-  constructor(private readonly secret: string, maxNonces = 100_000) {
+  constructor(
+    private readonly secret: string,
+    maxNonces = 100_000,
+    nonceTtlSeconds = 300,
+  ) {
     this.maxNonces = maxNonces;
+    this.nonceTtlMs = nonceTtlSeconds * 1000;
   }
 
   /** Compute the canonical signature for a payment (also used by clients). */
-  sign(fields: Pick<PaymentPayload, "resource" | "amount" | "payer" | "nonce">): string {
+  sign(
+    fields: Pick<
+      PaymentPayload,
+      "x402Version" | "scheme" | "network" | "resource" | "amount" | "payer" | "nonce"
+    >,
+  ): string {
     return createHmac("sha256", this.secret)
-      .update(`${fields.resource}:${fields.amount}:${fields.payer}:${fields.nonce}`)
+      .update(
+        `${fields.x402Version}:${fields.scheme}:${fields.network}:${fields.resource}:${fields.amount}:${fields.payer}:${fields.nonce}`,
+      )
       .digest("hex");
   }
 
@@ -119,19 +132,31 @@ export class HmacPaymentVerifier implements PaymentVerifier {
     if (a.length !== b.length || !timingSafeEqual(a, b)) {
       return { valid: false, reason: "bad_signature" };
     }
-    if (this.usedNonces.has(payload.nonce)) {
+    if (this.isNonceUsed(payload.nonce)) {
       return { valid: false, reason: "nonce_replayed" };
     }
     this.rememberNonce(payload.nonce);
     return { valid: true, payer: payload.payer };
   }
 
-  /** Record a spent nonce, evicting the oldest entries past the cap. */
+  /** Check whether a nonce has been used and is still within its TTL. */
+  private isNonceUsed(nonce: string): boolean {
+    const expiry = this.usedNonces.get(nonce);
+    if (expiry === undefined) return false;
+    if (Date.now() > expiry) {
+      // Expired — treat as unused and clean up.
+      this.usedNonces.delete(nonce);
+      return false;
+    }
+    return true;
+  }
+
+  /** Record a spent nonce with a TTL, evicting the oldest entries past the cap. */
   private rememberNonce(nonce: string): void {
-    this.usedNonces.add(nonce);
+    this.usedNonces.set(nonce, Date.now() + this.nonceTtlMs);
     if (this.usedNonces.size > this.maxNonces) {
-      // Sets preserve insertion order — drop the oldest entry.
-      const oldest = this.usedNonces.values().next().value;
+      // Maps preserve insertion order — drop the oldest entry.
+      const oldest = this.usedNonces.keys().next().value;
       if (oldest !== undefined) this.usedNonces.delete(oldest);
     }
   }

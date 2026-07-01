@@ -42,6 +42,11 @@ const SCAN_ROUTES: Record<string, ScanTarget["kind"]> = {
   "/v1/scan/text": "app",
 };
 
+/** Extract a non-empty string from an untrusted JSON value. */
+function asString(v: unknown): string | undefined {
+  return typeof v === "string" && v.length > 0 ? v : undefined;
+}
+
 export class SyncApiServer {
   private readonly scanner: IntegratedScanner;
   private readonly gate?: PaymentGate;
@@ -82,7 +87,13 @@ export class SyncApiServer {
 
   close(): Promise<void> {
     return new Promise((resolve, reject) =>
-      this.server ? this.server.close((e) => (e ? reject(e) : resolve())) : resolve(),
+      this.server
+        ? this.server.close((e: Error | null) => {
+            this.server = undefined;
+            if (e) reject(e);
+            else resolve();
+          })
+        : resolve(),
     );
   }
 
@@ -141,8 +152,9 @@ export class SyncApiServer {
     }
 
     const isTextScan = path === "/v1/scan/text";
+    const text = typeof body.text === "string" ? body.text : undefined;
     // The text endpoint scans a raw blob, so `text` alone is a valid target.
-    if (isTextScan && !body.text) {
+    if (isTextScan && (!text || text.trim().length === 0)) {
       return this.json(res, 400, {
         error: "missing_target",
         message: "Provide a non-empty 'text' field to scan.",
@@ -150,7 +162,11 @@ export class SyncApiServer {
     }
 
     const id =
-      body.id ?? body.address ?? body.url ?? body.package ?? (isTextScan ? "text-blob" : undefined);
+      asString(body.id) ??
+      asString(body.address) ??
+      asString(body.url) ??
+      asString(body.package) ??
+      (isTextScan ? "text-blob" : undefined);
     if (!id) {
       return this.json(res, 400, {
         error: "missing_target",
@@ -161,9 +177,9 @@ export class SyncApiServer {
     const target: ScanTarget = {
       id,
       kind,
-      label: body.label,
-      text: body.text,
-      domain: body.domain ?? (kind === "url" ? id : undefined),
+      label: asString(body.label),
+      text,
+      domain: asString(body.domain) ?? (kind === "url" ? id : undefined),
     };
 
     const result = await this.scanner.scan(target);
